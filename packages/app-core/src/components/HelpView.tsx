@@ -324,6 +324,7 @@ export function HelpView(): JSX.Element {
     shortcutSections.length > 0 ||
     vimCommands.length > 0 ||
     commandGroups.length > 0 ||
+    cliCards.length > 0 ||
     settingsSections.length > 0
 
   return (

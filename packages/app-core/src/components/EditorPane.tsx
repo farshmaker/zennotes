@@ -49,6 +49,10 @@ import {
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
 import { resolveCodeLanguage } from '../lib/cm-code-languages'
 import { markdownListIndentPlugin } from '../lib/cm-markdown-list-indent'
+import {
+  orderedListRenumber,
+  skipOrderedListRenumber
+} from '../lib/cm-ordered-list-renumber'
 import { syntaxHighlighting, HighlightStyle, defaultHighlightStyle } from '@codemirror/language'
 import { headingFolding } from '../lib/cm-heading-fold'
 import { tags as t } from '@lezer/highlight'
@@ -918,6 +922,7 @@ export function EditorPane({ pane }: { pane: PaneLeaf }): JSX.Element {
           wordWrapCompartment.of(s0.wordWrap ? EditorView.lineWrapping : []),
           markdown({ base: markdownLanguage, codeLanguages: resolveCodeLanguage, addKeymap: true }),
           markdownListIndentPlugin,
+          orderedListRenumber,
           headingFolding(),
           syntaxHighlighting(paperHighlight),
           syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
@@ -1075,7 +1080,7 @@ export function EditorPane({ pane }: { pane: PaneLeaf }): JSX.Element {
     const clampedHead = Math.min(sel.head, nextBody.length)
     view.dispatch({
       changes: { from: 0, to: view.state.doc.length, insert: nextBody },
-      annotations: programmatic.of(true),
+      annotations: [programmatic.of(true), skipOrderedListRenumber.of(true)],
       selection: pathChanged ? { anchor: 0 } : { anchor: clampedAnchor, head: clampedHead }
     })
     viewPathRef.current = nextPath

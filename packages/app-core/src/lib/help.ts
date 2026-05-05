@@ -119,7 +119,7 @@ export const HELP_HOW_TO_GUIDES: HelpCard[] = [
   {
     title: 'Search from Raycast on macOS',
     body:
-      'Install the `zen` CLI from Settings, then install the Raycast extension. Raycast can search notes, filter by folder or tag, open a note in the app, open it in a floating window, archive or unarchive, move to Trash, reveal in Finder, copy the note path, and copy a wikilink.'
+      'Install the `zen` CLI from Settings → CLI, then use the Raycast Extension section on the same page to install ZenNotes for Raycast locally. Raycast can search notes, filter by folder or tag, open a note in the app, open it in a floating window, archive or unarchive, move to Trash, reveal in Finder, copy the note path, and copy a wikilink.'
   },
   {
     title: 'Check for updates and install them',
@@ -217,7 +217,7 @@ export const HELP_CORE_CONCEPTS: HelpCard[] = [
   {
     title: 'The CLI is the bridge to launchers',
     body:
-      'The `zen` command-line tool can list, read, search, capture, edit, archive, trash, inspect tasks, and start the MCP server without the app running. Raycast uses it for search, then uses `zennotes://open` and `zennotes://open-window` links to bring the selected note back into ZenNotes.'
+      'The `zen` command-line tool can list, read, search, capture, edit, archive, trash, inspect tasks, and start the MCP server without the app running. Raycast uses it for search, then uses `zennotes://open` and `zennotes://open-window` links to bring the selected note back into ZenNotes. On macOS, Settings → CLI can install the bundled Raycast extension locally so users do not need to wait for the Raycast Store version.'
   },
   {
     title: 'Math, diagrams, and plots render from plain fences',
@@ -602,7 +602,7 @@ export const HELP_SETTINGS: HelpSettingsSection[] = [
       { label: 'Install Command-Line Tool', detail: 'Symlink the bundled `zen` wrapper into a usable PATH location so any terminal session can capture, search, and edit notes. ZenNotes prefers user-writable directories and only prompts for admin access when no writable PATH target is available. The CLI runtime stays packaged with the app, including the dependencies needed by `zen mcp`, so updates ship together.' },
       { label: 'Status, path, and quick reference', detail: 'Settings → CLI shows whether `zen` is installed, where the symlink lives, and a copy-able quick reference of the most useful commands. If the chosen directory is not on PATH yet, Settings shows the exact shell command to add it. An "External install" badge appears when something else owns `zen` so ZenNotes never clobbers an unmanaged binary.' },
       { label: 'Paths with spaces', detail: 'Quote note paths like `zen read "hellointerview/system design.md"` or pass them with `--path "hellointerview/system design.md"` so your shell keeps the path as one argument.' },
-      { label: 'Raycast on macOS', detail: 'The Raycast extension requires `zen`. It searches with `zen list --json`, then opens notes in ZenNotes through `zennotes://open` or `zennotes://open-window` and exposes archive, unarchive, trash, reveal, copy path, and copy wikilink actions from Raycast.' },
+      { label: 'Raycast on macOS', detail: 'The Raycast extension requires `zen` and can be installed locally from this settings page. ZenNotes copies the bundled extension into app data, installs dependencies, builds it, and imports it into Raycast. It searches with `zen list --json`, then opens notes in ZenNotes through `zennotes://open` or `zennotes://open-window` and exposes archive, unarchive, trash, reveal, copy path, and copy wikilink actions from Raycast.' },
       { label: 'Uninstall', detail: 'Removes only the ZenNotes-managed symlink — never an arbitrary unmanaged binary named `zen`. The CLI stays inside the app bundle for next time.' }
     ]
   },
@@ -646,7 +646,12 @@ export const HELP_CLI: HelpCard[] = [
   {
     title: 'Raycast uses the same CLI',
     body:
-      'On macOS, install the Raycast extension after `zen` is installed. The Search Notes command reads from `zen list --json`, then uses `zennotes://open` to open notes in the main app or `zennotes://open-window` to open a floating window. Cmd+K actions also archive, unarchive, move to Trash, reveal in Finder, copy the path, and copy a wikilink.'
+      'On macOS, install the Raycast extension locally from Settings → CLI after `zen` is installed. ZenNotes copies the bundled extension into app data, runs the local build, and imports it into Raycast, so you do not need the Raycast Store version. The Search Notes command reads from `zen list --json`, then uses `zennotes://open` to open notes in the main app or `zennotes://open-window` to open a floating window. Cmd+K actions also archive, unarchive, move to Trash, reveal in Finder, copy the path, and copy a wikilink.'
+  },
+  {
+    title: 'Raycast local install requirements',
+    body:
+      'The local Raycast installer is macOS-only. It needs Raycast, the `zen` CLI, Node.js 22.14 or newer, and npm 7 or newer available from your login shell. Settings shows each requirement, the local extension path, and whether the installed copy is current with the bundled ZenNotes version.'
   },
   {
     title: 'Edit incrementally',

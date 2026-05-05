@@ -138,7 +138,7 @@ ZenNotes includes:
 
 Vault text search can use the built-in engine, `ripgrep`, or `fzf`, with auto-detection and optional custom binary paths.
 
-The desktop app also ships a `zen` command-line companion for list, read, search, capture, edit, archive/trash, task, folder, and MCP workflows. On macOS, the Raycast integration uses that CLI plus `zennotes://` deep links to search notes, open them in the main app, open them in floating windows, archive/unarchive, move notes to Trash, reveal files in Finder, and copy note paths or wikilinks.
+The desktop app also ships a `zen` command-line companion for list, read, search, capture, edit, archive/trash, task, folder, and MCP workflows. On macOS, ZenNotes can install its Raycast extension locally from Settings -> CLI, avoiding the Raycast Store review path. The integration uses the CLI plus `zennotes://` deep links to search notes, open them in the main app, open them in floating windows, archive/unarchive, move notes to Trash, reveal files in Finder, and copy note paths or wikilinks.
 
 ### Obsidian-friendly vault support
 
@@ -190,7 +190,7 @@ Desktop-only features include:
 - app updater
 - floating note windows
 - `zen` CLI install/uninstall flow
-- Raycast search integration on macOS
+- local Raycast extension installation on macOS
 - MCP install/uninstall flows for supported clients
 - reveal in Finder / platform file manager
 - packaging and signed releases

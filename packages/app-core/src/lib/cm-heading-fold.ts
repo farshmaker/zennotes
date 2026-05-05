@@ -56,9 +56,9 @@ function measureNaturalCursorRect(el: HTMLElement): DOMRect | null {
   const prevTransform = el.style.getPropertyValue('transform')
   el.style.removeProperty('width')
   el.style.removeProperty('min-width')
-  el.style.removeProperty('height')
-  el.style.removeProperty('max-height')
-  el.style.removeProperty('line-height')
+  el.style.height = 'auto'
+  el.style.maxHeight = 'none'
+  el.style.lineHeight = 'normal'
   el.style.removeProperty('transform')
   const rect = el.getBoundingClientRect()
   restoreStyleProperty(el, 'width', prevWidth)
@@ -73,18 +73,14 @@ function measureNaturalCursorRect(el: HTMLElement): DOMRect | null {
 function fixFatCursorHeight(view: EditorView): void {
   const cursors = view.scrollDOM.querySelectorAll<HTMLElement>('.cm-fat-cursor')
   for (const el of cursors) {
-    el.style.removeProperty('width')
-    el.style.removeProperty('min-width')
-    el.style.removeProperty('height')
-    el.style.removeProperty('max-height')
-    el.style.removeProperty('line-height')
-    el.style.removeProperty('transform')
-
     const pluginHeight = Number.parseFloat(el.style.height)
     const naturalCursorRect = measureNaturalCursorRect(el)
+    const naturalHeight = naturalCursorRect?.height ?? null
     const targetHeight =
-      naturalCursorRect?.height && naturalCursorRect.height > 0
-        ? naturalCursorRect.height
+      naturalHeight && naturalHeight > 0
+        ? Number.isFinite(pluginHeight) && pluginHeight > 0
+          ? Math.min(pluginHeight, naturalHeight)
+          : naturalHeight
         : Number.isFinite(pluginHeight) && pluginHeight > 0
           ? pluginHeight
           : null
@@ -94,16 +90,14 @@ function fixFatCursorHeight(view: EditorView): void {
       naturalCursorRect?.width && naturalCursorRect.width > 0
         ? naturalCursorRect.width
         : null
-    const anchorHeight = Number.isFinite(pluginHeight) && pluginHeight > 0 ? pluginHeight : targetHeight
-    const offset = (anchorHeight - targetHeight) / 2
     if (targetWidth) {
       el.style.width = `${targetWidth}px`
       el.style.minWidth = `${targetWidth}px`
     }
     el.style.height = `${targetHeight}px`
     el.style.maxHeight = `${targetHeight}px`
-    el.style.lineHeight = `${targetHeight}px`
-    el.style.transform = `translateY(${offset}px)`
+    el.style.lineHeight = 'normal'
+    el.style.removeProperty('transform')
   }
 }
 

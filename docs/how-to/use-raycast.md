@@ -1,6 +1,7 @@
 # Use ZenNotes with Raycast on macOS
 
-This guide shows how to search ZenNotes from Raycast and open notes back in ZenNotes.
+This guide shows how to install the ZenNotes Raycast extension locally from the
+desktop app, search notes from Raycast, and open notes back in ZenNotes.
 
 ## Requirements
 
@@ -8,8 +9,9 @@ You need:
 
 - macOS
 - Raycast
-- ZenNotes desktop
+- ZenNotes desktop 1.3.6 or newer
 - the ZenNotes CLI installed as `zen`
+- Node.js 22.14 or newer and npm 7 or newer available from your login shell
 
 Raycast support is macOS-only because Raycast is macOS-only.
 
@@ -34,9 +36,37 @@ zen read "hellointerview/system design.md"
 zen read --path "hellointerview/system design.md"
 ```
 
-## 2. Install the Raycast extension
+## 2. Install the Raycast extension from ZenNotes
 
-For local testing, run the extension from the repo root:
+Open ZenNotes and stay on `Settings -> CLI`.
+
+In the `Raycast Extension` section, click `Install`.
+
+ZenNotes installs the extension locally. It does not depend on the Raycast Store.
+The installer:
+
+- copies the bundled Raycast extension source into ZenNotes app data
+- runs `npm ci` for the local extension copy
+- builds the extension with Raycast tooling
+- imports the local extension into Raycast
+- opens Raycast's extensions page when the import finishes
+
+The local copy lives under:
+
+```bash
+~/Library/Application Support/ZenNotes/integrations/raycast/zennotes
+```
+
+After the first install, the same button becomes `Reinstall` when the bundled
+extension matches the installed copy, or `Update` when ZenNotes ships a newer
+bundled extension.
+
+Run the Raycast command named `Search Notes`.
+
+## Local development
+
+If you are working on the extension source from the repository instead of using
+the packaged app installer, run the extension from the repo root:
 
 ```bash
 cd integrations/raycast
@@ -44,9 +74,7 @@ npm install
 npm run dev
 ```
 
-Raycast opens the local extension in development mode. Run the command named `Search Notes`.
-
-For the Raycast Store version, install the extension from Raycast instead of running the local development command.
+Raycast opens the repository copy in development mode.
 
 ## 3. Search and open notes
 
@@ -89,8 +117,16 @@ If Raycast keeps loading:
 
 - run `zen list` in a new terminal and make sure it prints notes
 - open `Settings -> CLI` and reinstall the CLI if Raycast cannot find `zen`
-- install a ZenNotes desktop release that supports `zennotes://open` and `zennotes://open-window`
+- open `Settings -> CLI` and reinstall or update the Raycast extension
 - restart Raycast after changing PATH
+
+If the Raycast Extension install button is disabled:
+
+- make sure you are using ZenNotes desktop on macOS
+- install Raycast on this Mac
+- install the `zen` CLI first from `Settings -> CLI`
+- install Node.js 22.14 or newer and npm 7 or newer
+- reopen ZenNotes after changing your shell PATH
 
 If opening a note fails:
 

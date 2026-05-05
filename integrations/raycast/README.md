@@ -9,7 +9,9 @@ Search notes from Raycast and open them in ZenNotes or a floating window.
 - ZenNotes desktop app
 - ZenNotes CLI installed as `zen`
 
-Install the CLI from ZenNotes Settings -> CLI, then install the Raycast extension from the same settings page. To verify the CLI manually:
+Install the CLI from ZenNotes Settings -> CLI, then install the Raycast extension from the `Raycast Extension` section on the same settings page. The app installs the extension locally; it does not require the Raycast Store review.
+
+The local app installer also needs Node.js 22.14 or newer and npm 7 or newer available from your login shell. To verify the CLI manually:
 
 ```sh
 zen list

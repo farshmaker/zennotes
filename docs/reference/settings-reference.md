@@ -247,7 +247,20 @@ zen mcp
 
 ### Raycast
 
-On macOS, the Raycast integration requires the CLI. The Raycast command calls `zen list --json`, then opens selected notes through `zennotes://open` or `zennotes://open-window`.
+On macOS, the Raycast integration is installed from the `CLI` settings page.
+It requires:
+
+- Raycast installed on the Mac
+- the ZenNotes CLI installed as `zen`
+- Node.js 22.14 or newer
+- npm 7 or newer
+
+ZenNotes does not require the Raycast Store version. The app copies its bundled
+Raycast extension source into app data, installs dependencies, builds the local
+extension, and imports it into Raycast.
+
+The Raycast command calls `zen list --json`, then opens selected notes through
+`zennotes://open` or `zennotes://open-window`.
 
 Raycast actions include:
 
@@ -258,6 +271,11 @@ Raycast actions include:
 - reveal in Finder
 - copy note path
 - copy wikilink
+
+The settings panel shows whether Raycast, Node, and npm were found, whether the
+local extension is installed, whether it matches the current ZenNotes version,
+and the local extension path. When ZenNotes ships a newer bundled extension, the
+same button changes from `Reinstall` to `Update`.
 
 Read [Use ZenNotes with Raycast on macOS](../how-to/use-raycast.md) for setup and troubleshooting.
 

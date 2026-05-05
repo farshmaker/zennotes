@@ -212,7 +212,7 @@ zen search "deadline" --json
 
 Quote note paths that contain spaces, or pass them with `--path`.
 
-On macOS, the Raycast extension uses this CLI to search notes and uses ZenNotes deep links to open notes in the main app or a floating window. See [Use ZenNotes with Raycast on macOS](../how-to/use-raycast.md).
+On macOS, the Raycast extension uses this CLI to search notes and uses ZenNotes deep links to open notes in the main app or a floating window. Install it from the `Raycast Extension` section on the same `Settings -> CLI` page. See [Use ZenNotes with Raycast on macOS](../how-to/use-raycast.md).
 
 ## 11. Adjust the vault model if needed
 
