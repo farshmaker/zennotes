@@ -1406,6 +1406,25 @@ textarea,
   outline: 2px solid rgb(var(--z-accent) / 0.45);
   outline-offset: 2px;
 }
+
+/* --- Search match highlights (`/` in vim, `Cmd+F`) -------------------- */
+/* The CodeMirror default uses a faint translucent yellow that disappears
+   against the paper theme. Use the theme yellow so matches stay visible
+   on every palette, and clear the inline-code chip background inside a
+   match so the highlight isn't occluded by `tok-monospace`. */
+.cm-editor .cm-searchMatch {
+  background: rgb(var(--z-yellow) / 0.4) !important;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgb(var(--z-yellow) / 0.55);
+}
+.cm-editor .cm-searchMatch-selected {
+  background: rgb(var(--z-accent) / 0.5) !important;
+  box-shadow: 0 0 0 1px rgb(var(--z-accent) / 0.75);
+}
+.cm-editor .cm-searchMatch .tok-monospace {
+  background: transparent !important;
+}
+
 .cm-editor .cm-activeLine {
   background: transparent;
 }

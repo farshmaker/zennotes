@@ -64,6 +64,21 @@ describe('editor and preview typography rhythm', () => {
     )
   })
 
+  it('keeps search match highlights visible inside code blocks and inline code', () => {
+    // Theme-aware background so the match shows against paper/dark themes.
+    expect(stylesSource).toMatch(
+      /\.cm-editor \.cm-searchMatch\s*\{[^}]*background:\s*rgb\(var\(--z-yellow\)\s*\/\s*0\.4\)\s*!important;/s
+    )
+    // Currently-focused match stands apart from the rest.
+    expect(stylesSource).toMatch(
+      /\.cm-editor \.cm-searchMatch-selected\s*\{[^}]*background:\s*rgb\(var\(--z-accent\)\s*\/\s*0\.5\)\s*!important;/s
+    )
+    // Inline-code chip background must not occlude the match highlight.
+    expect(stylesSource).toMatch(
+      /\.cm-editor \.cm-searchMatch \.tok-monospace\s*\{[^}]*background:\s*transparent\s*!important;/s
+    )
+  })
+
   it('styles the built-in CodeMirror search panel with app theme tokens', () => {
     expect(stylesSource).toMatch(
       /\.cm-editor \.cm-search\s*\{[^}]*background:\s*rgb\(var\(--z-bg-softer\)\)\s*!important;/s
