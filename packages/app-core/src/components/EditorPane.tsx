@@ -788,7 +788,8 @@ export function EditorPane({ pane }: { pane: PaneLeaf }): JSX.Element {
   }, [])
 
   const scrollPreviewToOutlineLine = useCallback((line: number): boolean => {
-    if (mode !== 'split' || !content) return false
+    // Works wherever the preview is mounted (split or preview), not in edit.
+    if (mode === 'edit' || !content) return false
     const previewEl = previewScrollRef.current
     if (!previewEl) return false
     const items = parseOutline(content.body)
@@ -843,7 +844,7 @@ export function EditorPane({ pane }: { pane: PaneLeaf }): JSX.Element {
   }, [canSyncPreviewFromEditorViewport])
 
   const schedulePreviewOutlineJump = useCallback((line: number): void => {
-    if (mode !== 'split') return
+    if (mode === 'edit') return
     lockOutlinePreviewSync()
     pendingPreviewOutlineJumpLineRef.current = line
     if (outlinePreviewJumpFrameRef.current != null) {
@@ -909,17 +910,35 @@ export function EditorPane({ pane }: { pane: PaneLeaf }): JSX.Element {
   }, [schedulePreviewOutlineJump, setFocusedPanel])
 
   const jumpToOutlineLine = useCallback((line: number) => {
-    pendingOutlineJumpLineRef.current = line
     setActivePane(paneId)
+    // Preview mode: scroll the rendered preview to the heading and stay in
+    // preview — don't yank the user into edit mode. If the preview hasn't
+    // rendered yet, schedule the scroll for when it does.
+    if (mode === 'preview') {
+      if (!scrollPreviewToOutlineLine(line)) {
+        schedulePreviewOutlineJump(line)
+      }
+      return
+    }
+    pendingOutlineJumpLineRef.current = line
     setFocusedPanel('editor')
-    if (mode === 'preview' || !viewRef.current) {
+    if (!viewRef.current) {
       applyPaneMode('edit')
       return
     }
     if (commitOutlineJump(line)) {
       pendingOutlineJumpLineRef.current = null
     }
-  }, [applyPaneMode, commitOutlineJump, mode, paneId, setActivePane, setFocusedPanel])
+  }, [
+    applyPaneMode,
+    commitOutlineJump,
+    mode,
+    paneId,
+    scrollPreviewToOutlineLine,
+    schedulePreviewOutlineJump,
+    setActivePane,
+    setFocusedPanel
+  ])
 
   const clearCommentDraft = useCallback((): void => {
     setCommentDraft(null)
