@@ -2974,6 +2974,7 @@ export function Sidebar(): JSX.Element {
           <SidebarSectionHeading label="Quick access" />
 
           <TaskSidebarRow
+            label={folderLabels.tasks}
             active={tasksViewActive}
             onClick={() => void openTasksView()}
             sidebarIdx={idxCounter.current.value++}
@@ -4764,12 +4765,14 @@ function TreeRow({
 // Top-level utility row. These align their icon center to the folder chevron
 // rail, but do not reserve a full fake chevron slot.
 function TaskSidebarRow({
+  label,
   active,
   onClick,
   sidebarIdx,
   vimHighlight,
   sidebarFocused = false,
 }: {
+  label: string;
   active: boolean;
   onClick: () => void;
   sidebarIdx?: number;
@@ -4811,7 +4814,7 @@ function TaskSidebarRow({
       <SidebarGlyph active={strongActive} rowActive={active}>
         <CheckSquareIcon width={12} height={12} strokeWidth={2.15} />
       </SidebarGlyph>
-      <span className="flex-1 truncate">Tasks</span>
+      <span className="flex-1 truncate">{label}</span>
     </div>
   );
 }

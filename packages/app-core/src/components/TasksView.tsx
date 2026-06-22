@@ -8,6 +8,7 @@ import { TasksCalendar } from './TasksCalendar'
 import { TasksKanban } from './TasksKanban'
 import { CalendarIcon, CheckSquareIcon, KanbanIcon, ListIcon } from './icons'
 import { advanceSequence, getKeymapBinding, matchesSequenceToken } from '../lib/keymaps'
+import { getSystemFolderLabel } from '../lib/system-folder-labels'
 import { isImeComposing } from '../lib/ime'
 import { isAppOverlayOpen } from '../lib/overlay-open'
 
@@ -35,6 +36,8 @@ export function TasksView(): JSX.Element {
   const rawTasks = useStore((s) => s.vaultTasks)
   const notes = useStore((s) => s.notes)
   const vaultSettings = useStore((s) => s.vaultSettings)
+  const systemFolderLabels = useStore((s) => s.systemFolderLabels)
+  const tasksLabel = getSystemFolderLabel('tasks', systemFolderLabels)
   const loading = useStore((s) => s.tasksLoading)
   const filter = useStore((s) => s.tasksFilter)
   const cursorIndex = useStore((s) => s.taskCursorIndex)
@@ -357,7 +360,7 @@ export function TasksView(): JSX.Element {
     >
       <div className="flex items-center gap-2 border-b border-paper-300/45 px-4 py-3">
         <CheckSquareIcon width={18} height={18} />
-        <h1 className="text-sm font-semibold">Tasks</h1>
+        <h1 className="text-sm font-semibold">{tasksLabel}</h1>
         <span className="ml-2 rounded bg-paper-300/60 px-1.5 py-0.5 text-xs text-current/60">
           {tasks.length} total
         </span>

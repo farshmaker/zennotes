@@ -83,7 +83,7 @@ function buildEntries(deps: BuildDeps): BufferEntry[] {
     if (isTasksTabPath(path)) {
       entries.push({
         path,
-        title: 'Tasks',
+        title: labels.tasks,
         subtitle: 'Vault-wide task list',
         keywords: 'tasks todos checklist vault virtual',
         badge,

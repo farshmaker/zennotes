@@ -2278,7 +2278,7 @@ export function EditorPane({ pane }: { pane: PaneLeaf }): JSX.Element {
         if (isTasksTabPath(path)) {
           return {
             ...base,
-            title: 'Tasks',
+            title: folderLabels.tasks,
             isTasks: true
           }
         }
@@ -2354,7 +2354,7 @@ export function EditorPane({ pane }: { pane: PaneLeaf }): JSX.Element {
         }
       })
     },
-    [tabs, pinnedTabs, previewTab, content, notes, folderLabels.quick, folderLabels.archive, folderLabels.trash]
+    [tabs, pinnedTabs, previewTab, content, notes, folderLabels.quick, folderLabels.archive, folderLabels.trash, folderLabels.tasks]
   )
 
   const tabMenuItems = useMemo<ContextMenuItem[]>(() => {

@@ -1549,6 +1549,12 @@ export function SettingsModal(): JSX.Element {
           title: 'Trash label',
           description: 'Display name for deleted-note recovery.',
           keywords: ['system folders', 'folder label']
+        },
+        {
+          id: 'tasks-label',
+          title: 'Tasks label',
+          description: 'Display name for the vault-wide task list.',
+          keywords: ['system folders', 'folder label', 'tasks']
         }
       ],
       content: (
@@ -2065,8 +2071,16 @@ export function SettingsModal(): JSX.Element {
               settingId="trash-label"
               onChange={(next) => setSystemFolderLabel('trash', next)}
             />
+            <TextInputRow
+              label="Tasks label"
+              description="Display name for the vault-wide task list."
+              value={systemFolderLabels.tasks ?? ''}
+              placeholder={DEFAULT_SYSTEM_FOLDER_LABELS.tasks}
+              settingId="tasks-label"
+              onChange={(next) => setSystemFolderLabel('tasks', next)}
+            />
             <InlineNote>
-              Current labels: {getSystemFolderLabel('quick', systemFolderLabels)}, {getSystemFolderLabel('inbox', systemFolderLabels)}, {getSystemFolderLabel('archive', systemFolderLabels)}, and {getSystemFolderLabel('trash', systemFolderLabels)}.
+              Current labels: {getSystemFolderLabel('quick', systemFolderLabels)}, {getSystemFolderLabel('inbox', systemFolderLabels)}, {getSystemFolderLabel('archive', systemFolderLabels)}, {getSystemFolderLabel('trash', systemFolderLabels)}, and {getSystemFolderLabel('tasks', systemFolderLabels)}.
             </InlineNote>
           </Section>
         </div>

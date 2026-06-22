@@ -1,15 +1,18 @@
 import type { NoteFolder } from '@shared/ipc'
 
-export type SystemFolderLabels = Partial<Record<NoteFolder, string>>
+export type SystemLabelKey = NoteFolder | 'tasks'
 
-export const DEFAULT_SYSTEM_FOLDER_LABELS: Record<NoteFolder, string> = {
+export type SystemFolderLabels = Partial<Record<SystemLabelKey, string>>
+
+export const DEFAULT_SYSTEM_FOLDER_LABELS: Record<SystemLabelKey, string> = {
   inbox: 'Inbox',
   quick: 'Quick Notes',
   archive: 'Archive',
-  trash: 'Trash'
+  trash: 'Trash',
+  tasks: 'Tasks'
 }
 
-const SYSTEM_FOLDERS: NoteFolder[] = ['inbox', 'quick', 'archive', 'trash']
+const SYSTEM_FOLDERS: SystemLabelKey[] = ['inbox', 'quick', 'archive', 'trash', 'tasks']
 
 function normalizeSystemFolderLabel(value: unknown): string | null {
   if (typeof value !== 'string') return null
@@ -20,7 +23,7 @@ function normalizeSystemFolderLabel(value: unknown): string | null {
 
 export function normalizeSystemFolderLabels(value: unknown): SystemFolderLabels {
   if (!value || typeof value !== 'object') return {}
-  const raw = value as Partial<Record<NoteFolder, unknown>>
+  const raw = value as Partial<Record<SystemLabelKey, unknown>>
   const next: SystemFolderLabels = {}
   for (const folder of SYSTEM_FOLDERS) {
     const label = normalizeSystemFolderLabel(raw[folder])
@@ -30,7 +33,7 @@ export function normalizeSystemFolderLabels(value: unknown): SystemFolderLabels 
 }
 
 export function getSystemFolderLabel(
-  folder: NoteFolder,
+  folder: SystemLabelKey,
   overrides?: SystemFolderLabels | null
 ): string {
   return overrides?.[folder] ?? DEFAULT_SYSTEM_FOLDER_LABELS[folder]
@@ -38,11 +41,12 @@ export function getSystemFolderLabel(
 
 export function resolveSystemFolderLabels(
   overrides?: SystemFolderLabels | null
-): Record<NoteFolder, string> {
+): Record<SystemLabelKey, string> {
   return {
     inbox: getSystemFolderLabel('inbox', overrides),
     quick: getSystemFolderLabel('quick', overrides),
     archive: getSystemFolderLabel('archive', overrides),
-    trash: getSystemFolderLabel('trash', overrides)
+    trash: getSystemFolderLabel('trash', overrides),
+    tasks: getSystemFolderLabel('tasks', overrides)
   }
 }
