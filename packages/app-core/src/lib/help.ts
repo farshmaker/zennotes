@@ -250,9 +250,9 @@ export const HELP_CORE_CONCEPTS: HelpCard[] = [
       'When you type `/` at the start of a line or after whitespace, ZenNotes opens an inline insert menu for common markdown structures such as headings, bulleted or numbered lists, to-do items, callouts, code blocks, dividers, tables, math blocks, links, images, and even creating a new note page.'
   },
   {
-    title: '@ shortcuts insert relative dates',
+    title: '@ inserts dates and links notes',
     body:
-      'Typing `@` in normal text opens date suggestions for Today, Yesterday, and Tomorrow. Choosing one inserts an ISO date like `2026-04-15`, which keeps notes file-friendly, searchable, and easy to sort.'
+      'Typing `@` in normal text opens suggestions: the date shortcuts (Today, Yesterday, Tomorrow) plus any notes matching what you type. Choosing a date inserts an ISO date like `2026-04-15`; choosing a note inserts a `[[wikilink]]`, so `@` is a quick alternative to `[[`. A bare `@` leads with just the dates — start typing letters and matching notes appear.'
   },
   {
     title: 'Templates scaffold new notes',
