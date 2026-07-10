@@ -453,6 +453,7 @@ function App(): JSX.Element {
     const html = document.documentElement
     const mql = window.matchMedia('(prefers-color-scheme: dark)')
     const apply = (): void => {
+      const prevMode = html.dataset.themeMode
       const prefersDark = mql.matches
       if (isCustomThemeId(themeId)) {
         const slug = customThemeSlugFromId(themeId)
@@ -464,6 +465,14 @@ function App(): JSX.Element {
         const id = themeMode === 'auto' ? resolveAuto(themeFamily, prefersDark, themeId) : themeId
         html.dataset.theme = id
         html.dataset.themeMode = findTheme(id).mode
+      }
+      // Excalidraw embed previews are exported light/dark to match the theme;
+      // re-render them when the resolved mode flips so a dark note never shows a
+      // white drawing. (#363)
+      if (prevMode && prevMode !== html.dataset.themeMode) {
+        useStore.setState((s) => ({
+          excalidrawPreviewVersion: s.excalidrawPreviewVersion + 1
+        }))
       }
     }
     apply()

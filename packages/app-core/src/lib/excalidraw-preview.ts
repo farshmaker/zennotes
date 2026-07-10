@@ -23,7 +23,14 @@ export function parseEmbedSizeHint(hint: string | null | undefined): EmbedSize |
 
 interface CacheEntry {
   mtime: number
+  /** Whether this PNG was exported in dark mode — a theme flip re-renders it. */
+  dark: boolean
   dataUrl: string
+}
+
+/** The app's currently resolved light/dark mode (mirrored on <html> by App.tsx). */
+function currentThemeDark(): boolean {
+  return typeof document !== 'undefined' && document.documentElement.dataset.themeMode === 'dark'
 }
 
 /** Path → rendered PNG data URL, keyed by file mtime so edited drawings refresh.
@@ -62,7 +69,7 @@ function blobToDataUrl(blob: Blob): Promise<string> {
   })
 }
 
-async function renderPng(doc: ExcalidrawDocument): Promise<string> {
+async function renderPng(doc: ExcalidrawDocument, dark: boolean): Promise<string> {
   const { exportToBlob } = await import('@excalidraw/excalidraw')
   // Excalidraw keeps deleted elements in the scene for undo history.
   // exportToBlob expects only non-deleted elements — including deleted
@@ -73,7 +80,10 @@ async function renderPng(doc: ExcalidrawDocument): Promise<string> {
   })
   const blob = await exportToBlob({
     elements: activeElements as never,
-    appState: { ...doc.appState, exportBackground: true } as never,
+    // Follow the app's light/dark mode so an embedded drawing matches the note
+    // (and the editor, which already themes itself) instead of showing a white
+    // box in a dark note. (#363)
+    appState: { ...doc.appState, exportBackground: true, exportWithDarkMode: dark } as never,
     files: doc.files as never,
     mimeType: 'image/png',
     exportPadding: 8,
@@ -110,12 +120,13 @@ export async function getExcalidrawPreview(path: string): Promise<string | null>
   if (existing) return existing
   const p = (async () => {
     try {
+      const dark = currentThemeDark()
       const scene = await readScene(path)
       if (!scene) return null
       const cached = readCache(path)
-      if (cached && cached.mtime === scene.mtime) return cached.dataUrl
-      const dataUrl = await renderPng(scene.doc)
-      writeCache(path, { mtime: scene.mtime, dataUrl })
+      if (cached && cached.mtime === scene.mtime && cached.dark === dark) return cached.dataUrl
+      const dataUrl = await renderPng(scene.doc, dark)
+      writeCache(path, { mtime: scene.mtime, dark, dataUrl })
       return dataUrl
     } catch (err) {
       console.error('excalidraw preview failed', path, err)
