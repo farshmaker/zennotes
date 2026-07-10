@@ -1916,6 +1916,19 @@ function hasTasksViewOpen(state: { paneLayout: PaneLayout }): boolean {
   return allLeaves(state.paneLayout).some((leaf) => leaf.tabs.includes(TASKS_TAB_PATH))
 }
 
+/** True when a surface backed by `vaultTasks` is on screen and therefore needs
+ *  the shared task cache kept fresh on note edits. Covers the Tasks view and the
+ *  calendar panel — the latter is per-pane local state exposed via a DOM marker
+ *  (the same one VimNav reads for pane navigation), so editing a daily note with
+ *  only the calendar open still refreshes its tasks. */
+function tasksSurfaceVisible(state: { paneLayout: PaneLayout }): boolean {
+  if (hasTasksViewOpen(state)) return true
+  return (
+    typeof document !== 'undefined' &&
+    document.querySelector('[data-calendar-panel]') !== null
+  )
+}
+
 /** True when the active pane's active tab is the vault-wide Tags view. */
 export function isTagsViewActive(state: {
   paneLayout: PaneLayout
@@ -4710,11 +4723,13 @@ export const useStore = create<Store>((set, get) => {
       }
     }
 
-    // Keep an open Tasks tab in sync as files change externally or via our own
-    // writes — cheap per-path rescans instead of walking the whole vault. This
-    // also covers inactive Tasks tabs so returning to Kanban doesn't show stale
-    // cards from the last time the tab was focused.
-    if (hasTasksViewOpen(state)) {
+    // Keep the shared task cache in sync as files change externally or via our
+    // own writes — cheap per-path rescans instead of walking the whole vault.
+    // This covers the Tasks view (incl. inactive tabs, so returning to Kanban
+    // doesn't show stale cards) and the calendar panel, whose weekly task list
+    // otherwise kept showing a daily note's tasks as they were at the last full
+    // scan (stale checked-state, missing newly added tasks).
+    if (tasksSurfaceVisible(state)) {
       if (ev.kind === 'unlink') {
         set((s) => ({
           vaultTasks: s.vaultTasks.filter((t) => t.sourcePath !== ev.path)
