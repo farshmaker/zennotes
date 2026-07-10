@@ -444,6 +444,8 @@ export function SettingsModal(): JSX.Element {
   const setQuickNoteTitlePrefix = useStore((s) => s.setQuickNoteTitlePrefix);
   const wordWrap = useStore((s) => s.wordWrap);
   const setWordWrap = useStore((s) => s.setWordWrap);
+  const cursorBlink = useStore((s) => s.cursorBlink);
+  const setCursorBlink = useStore((s) => s.setCursorBlink);
   const previewSmoothScroll = useStore((s) => s.previewSmoothScroll);
   const setPreviewSmoothScroll = useStore((s) => s.setPreviewSmoothScroll);
   const editorMaxWidth = useStore((s) => s.editorMaxWidth);
@@ -1779,6 +1781,21 @@ export function SettingsModal(): JSX.Element {
           keywords: ["wrap", "line wrap"],
         },
         {
+          id: "cursor-blink",
+          title: "Blinking cursor",
+          description:
+            "Blink the editor caret and Vim block cursor, or keep it solid.",
+          keywords: [
+            "cursor",
+            "caret",
+            "blink",
+            "blinking",
+            "solid",
+            "non-blinking",
+            "accessibility",
+          ],
+        },
+        {
           id: "smooth-preview-scroll",
           title: "Smooth preview scroll",
           description:
@@ -2003,6 +2020,7 @@ export function SettingsModal(): JSX.Element {
             "note-tabs",
             "wrap-note-tabs",
             "word-wrap",
+            "cursor-blink",
             "smooth-preview-scroll",
             "pdfs-in-edit-mode",
             "time-format",
@@ -2056,6 +2074,13 @@ export function SettingsModal(): JSX.Element {
                   value={wordWrap}
                   settingId="word-wrap"
                   onChange={setWordWrap}
+                />
+                <ToggleRow
+                  label="Blinking cursor"
+                  description="Blink the editor caret and the Vim block cursor. Turn off for a solid cursor, e.g. to match the macOS 'Prefer non-blinking cursor' accessibility setting."
+                  value={cursorBlink}
+                  settingId="cursor-blink"
+                  onChange={setCursorBlink}
                 />
                 <ToggleRow
                   label="Smooth preview scroll"

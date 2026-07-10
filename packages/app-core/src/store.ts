@@ -448,6 +448,9 @@ interface Prefs {
   /** When true, long lines wrap inside the editor. When false they
    *  scroll horizontally — same as a coding editor's "Word Wrap". */
   wordWrap: boolean
+  /** When false the editor caret (and the Vim block cursor) stay solid
+   *  instead of blinking. */
+  cursorBlink: boolean
   /** Ctrl+D / Ctrl+U half-page scroll in preview mode. When true the
    *  jumps animate; when false they snap instantly. Vim users often
    *  prefer the instant flavor because it keeps the position
@@ -710,6 +713,7 @@ export const DEFAULT_PREFS: Prefs = {
   quickNoteDateTitle: false,
   quickNoteTitlePrefix: 'Quick Note',
   wordWrap: true,
+  cursorBlink: true,
   previewSmoothScroll: true,
   editorMaxWidth: 920,
   pdfEmbedInEditMode: 'compact',
@@ -906,6 +910,10 @@ function normalizePrefs(p: Partial<Prefs>): Prefs {
         : DEFAULT_PREFS.quickNoteTitlePrefix,
     wordWrap:
       typeof p.wordWrap === 'boolean' ? p.wordWrap : DEFAULT_PREFS.wordWrap,
+    cursorBlink:
+      typeof p.cursorBlink === 'boolean'
+        ? p.cursorBlink
+        : DEFAULT_PREFS.cursorBlink,
     previewSmoothScroll:
       typeof p.previewSmoothScroll === 'boolean'
         ? p.previewSmoothScroll
@@ -1579,6 +1587,7 @@ function collectPrefs(s: {
   quickNoteDateTitle: boolean
   quickNoteTitlePrefix: string | null
   wordWrap: boolean
+  cursorBlink: boolean
   previewSmoothScroll: boolean
   editorMaxWidth: number
   pdfEmbedInEditMode: 'compact' | 'full'
@@ -1647,6 +1656,7 @@ function collectPrefs(s: {
     quickNoteDateTitle: s.quickNoteDateTitle,
     quickNoteTitlePrefix: s.quickNoteTitlePrefix,
     wordWrap: s.wordWrap,
+    cursorBlink: s.cursorBlink,
     previewSmoothScroll: s.previewSmoothScroll,
     editorMaxWidth: s.editorMaxWidth,
     pdfEmbedInEditMode: s.pdfEmbedInEditMode,
@@ -2110,6 +2120,10 @@ interface Store {
   /** Whether long lines wrap or scroll horizontally in the editor. */
   wordWrap: boolean
 
+  /** When false the editor caret and the Vim block cursor stay solid
+   *  instead of blinking. */
+  cursorBlink: boolean
+
   /** Animate Ctrl+D / Ctrl+U half-page jumps in preview mode. Off
    *  gives an instant snap, which Vim muscle memory prefers. */
   previewSmoothScroll: boolean
@@ -2515,6 +2529,7 @@ interface Store {
   saveActiveNoteAsTemplate: () => Promise<void>
   saveActiveNoteAs: (newName: string) => Promise<void>
   setWordWrap: (on: boolean) => void
+  setCursorBlink: (on: boolean) => void
   setPreviewSmoothScroll: (on: boolean) => void
   setEditorMaxWidth: (px: number) => void
   setPdfEmbedInEditMode: (mode: 'compact' | 'full') => void
@@ -3593,6 +3608,7 @@ export const useStore = create<Store>((set, get) => {
   quickNoteDateTitle: loadPrefs().quickNoteDateTitle,
   quickNoteTitlePrefix: loadPrefs().quickNoteTitlePrefix,
   wordWrap: loadPrefs().wordWrap,
+  cursorBlink: loadPrefs().cursorBlink,
   previewSmoothScroll: loadPrefs().previewSmoothScroll,
   editorMaxWidth: loadPrefs().editorMaxWidth,
   pdfEmbedInEditMode: loadPrefs().pdfEmbedInEditMode,
@@ -6241,6 +6257,11 @@ export const useStore = create<Store>((set, get) => {
 
   setWordWrap: (on) => {
     set({ wordWrap: on })
+    savePrefs(collectPrefs(get()))
+  },
+
+  setCursorBlink: (on) => {
+    set({ cursorBlink: on })
     savePrefs(collectPrefs(get()))
   },
 
