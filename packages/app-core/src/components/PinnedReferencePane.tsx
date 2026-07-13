@@ -44,7 +44,7 @@ import { calloutTypeSource } from '../lib/cm-callouts'
 import { dateShortcutSource } from '../lib/cm-date-shortcuts'
 import { wikilinkSource, wikilinkHeadingSource } from '../lib/cm-wikilinks'
 import { completionNavKeymap } from '../lib/cm-completion-nav'
-import { classifyLocalAssetHref, type LocalAssetKind } from '../lib/local-assets'
+import { classifyLocalAssetHref, hrefFragment, type LocalAssetKind } from '../lib/local-assets'
 import { LazyPreview as Preview } from './LazyPreview'
 import { CloseIcon, PanelLeftIcon, PinIcon } from './icons'
 
@@ -119,9 +119,11 @@ export function PinnedReferencePane(): JSX.Element | null {
   const globalRefKind = useStore((s) => s.pinnedRefKind)
   const noteRefs = useStore((s) => s.noteRefs)
   const selectedPath = useStore((s) => s.selectedPath)
+  const globalRefFragment = useStore((s) => s.pinnedRefFragment)
   // Per-note pin (if any) overrides the global one.
   const noteRef = selectedPath ? noteRefs[selectedPath] : null
   const pinnedRefPath = noteRef?.path ?? globalRefPath
+  const pinnedRefFragment = noteRef?.fragment ?? globalRefFragment
   const pinnedRefKind = noteRef?.kind ?? globalRefKind
   const isPerNotePin = !!noteRef
   const pinnedRefVisible = useStore((s) => s.pinnedRefVisible)
@@ -344,6 +346,7 @@ export function PinnedReferencePane(): JSX.Element | null {
     pinnedRefPath && isAsset && vaultRoot
       ? window.zen.resolveVaultAssetUrl(vaultRoot, pinnedRefPath)
       : null
+  const assetUrlWithFragment = assetUrl ? assetUrl + (pinnedRefFragment ?? '') : null
   const assetKind: LocalAssetKind | null =
     pinnedRefPath && isAsset ? classifyLocalAssetHref(pinnedRefPath) ?? 'file' : null
   const useAssetIframe = assetKind === 'pdf' || assetKind === 'file'
@@ -356,15 +359,15 @@ export function PinnedReferencePane(): JSX.Element | null {
   // user cycles through many PDFs.
   const [seenAssetUrls, setSeenAssetUrls] = useState<string[]>([])
   useEffect(() => {
-    if (!assetUrl || !useAssetIframe) return
+    if (!assetUrlWithFragment || !useAssetIframe) return
     setSeenAssetUrls((prev) => {
-      if (prev[prev.length - 1] === assetUrl) return prev
-      const without = prev.filter((u) => u !== assetUrl)
-      const next = [...without, assetUrl]
+      if (prev[prev.length - 1] === assetUrlWithFragment) return prev
+      const without = prev.filter((u) => u !== assetUrlWithFragment)
+      const next = [...without, assetUrlWithFragment]
       while (next.length > 16) next.shift()
       return next
     })
-  }, [assetUrl, useAssetIframe])
+  }, [assetUrlWithFragment, useAssetIframe])
 
   const showEditor = pinnedRefMode === 'edit'
   const hidden = !pinnedRefPath || !pinnedRefVisible
@@ -523,7 +526,7 @@ export function PinnedReferencePane(): JSX.Element | null {
           <div
             className="absolute inset-0"
             style={{
-              display: isAsset && assetUrl && useAssetIframe ? 'block' : 'none'
+              display: isAsset && assetUrlWithFragment && useAssetIframe ? 'block' : 'none'
             }}
           >
             {seenAssetUrls.map((url) => (
@@ -533,7 +536,7 @@ export function PinnedReferencePane(): JSX.Element | null {
                 title={url}
                 className="absolute inset-0 h-full w-full border-0 bg-paper-50"
                 style={{
-                  display: url === assetUrl ? 'block' : 'none'
+                  display: url === assetUrlWithFragment ? 'block' : 'none'
                 }}
               />
             ))}

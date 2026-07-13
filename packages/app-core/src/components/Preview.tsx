@@ -17,6 +17,7 @@ import { externalLinkUrl, resolveInternalNoteHref } from "../lib/internal-links"
 import { toggleTaskAtIndex } from "../lib/tasklists";
 import {
   enhanceLocalAssetNodes,
+  hrefFragment,
   resolveAssetVaultRelativePath,
 } from "../lib/local-assets";
 import { assetTabPath } from "../lib/asset-tabs";
@@ -1067,13 +1068,15 @@ export const Preview = memo(function Preview({
         if (abs) window.zen.clipboardWriteText(abs);
       },
     });
+    const assetHref = assetMenu.href;
+    const fragment = hrefFragment(assetHref) || null;
     items.push(
       {
         label: "Open as Reference (This Note)",
         disabled: !vaultRel,
         onSelect: async () => {
           if (vaultRel) {
-            pinAssetReferenceForNote(notePath, vaultRel);
+            pinAssetReferenceForNote(notePath, vaultRel, fragment);
           }
         },
       },
@@ -1081,7 +1084,7 @@ export const Preview = memo(function Preview({
         label: "Open as Reference (Global)",
         disabled: !vaultRel,
         onSelect: async () => {
-          if (vaultRel) pinAssetReference(vaultRel);
+          if (vaultRel) pinAssetReference(vaultRel, fragment);
         },
       },
     );
