@@ -151,6 +151,7 @@ import {
   mapLeaves,
   replaceLeaf,
   rewritePathsInTree,
+  preserveLayoutIfPruneEmptiesNoteTabs,
   splitLeaf,
   updateLeaf,
   updateSplitSizes,
@@ -4600,8 +4601,18 @@ export const useStore = create<Store>((set, get) => {
           existingPaths.has(path) ||
           isWorkspaceVirtualTabPath(path) ||
           path === s.selectedPath
-        const nextLayout = rewritePathsInTree(s.paneLayout, (path) =>
+        const prunedLayout = rewritePathsInTree(s.paneLayout, (path) =>
           keep(path) ? path : null
+        )
+        // #384: never let a background note-list refresh close *every* open
+        // note tab at once (a transient/incomplete list — reported on Linux
+        // when moving a note to Trash — would otherwise wipe all tabs and drop
+        // the user on the home screen). Real deletions are handled precisely by
+        // the trash/delete actions and applyChange('unlink').
+        const nextLayout = preserveLayoutIfPruneEmptiesNoteTabs(
+          s.paneLayout,
+          prunedLayout,
+          isWorkspaceVirtualTabPath
         )
         const ensured = ensureActivePane(nextLayout, s.activePaneId)
         // Auto-unpin the reference pane if its note has been deleted on
