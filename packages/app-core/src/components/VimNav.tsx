@@ -403,6 +403,24 @@ export function VimNav(): JSX.Element | null {
       const previewEl = getPreviewScrollElement()
       const hoverPreviewEl = getHoverPreviewScrollElement()
 
+      // Vim jumplist navigation (Ctrl+O back / Ctrl+I forward) is checked BEFORE
+      // the inline-format shortcuts below: on Linux/Windows `Mod` is Ctrl, so
+      // Vim's forward binding (Ctrl+I) collides with the italic shortcut (Mod+I).
+      // In Vim normal/visual mode the jumplist must win; only in insert mode (or
+      // with Vim off) does Ctrl+I fall through to italic. (#373)
+      const wantsJumpBack = matchesSequenceToken(e, overrides, 'vim.historyBack')
+      const wantsJumpForward = matchesSequenceToken(e, overrides, 'vim.historyForward')
+      if (
+        (wantsJumpBack || wantsJumpForward) &&
+        state.vimMode &&
+        !isEditorInsertMode(state.editorViewRef, state.vimMode)
+      ) {
+        e.preventDefault()
+        e.stopImmediatePropagation()
+        jumpNoteHistory(wantsJumpBack ? 'back' : 'forward')
+        return
+      }
+
       // Inline-format shortcuts (Bold/Italic/Strike/Highlight/Code/Math/Link)
       // mirror the selection toolbar. Handled here — in the window capture
       // handler — so they work on every platform and beat Vim's own Ctrl
@@ -446,18 +464,6 @@ export function VimNav(): JSX.Element | null {
             return
           }
         }
-      }
-
-      const wantsJumpBack = matchesSequenceToken(e, overrides, 'vim.historyBack')
-      const wantsJumpForward = matchesSequenceToken(e, overrides, 'vim.historyForward')
-      if (
-        (wantsJumpBack || wantsJumpForward) &&
-        !isEditorInsertMode(state.editorViewRef, state.vimMode)
-      ) {
-        e.preventDefault()
-        e.stopImmediatePropagation()
-        jumpNoteHistory(wantsJumpBack ? 'back' : 'forward')
-        return
       }
 
       if (
