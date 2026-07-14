@@ -434,6 +434,10 @@ export function SettingsModal(): JSX.Element {
   );
   const completedTaskStyle = useStore((s) => s.completedTaskStyle);
   const setCompletedTaskStyle = useStore((s) => s.setCompletedTaskStyle);
+  const keepViewModeAcrossNotes = useStore((s) => s.keepViewModeAcrossNotes);
+  const setKeepViewModeAcrossNotes = useStore(
+    (s) => s.setKeepViewModeAcrossNotes,
+  );
   const markdownSnippets = useStore((s) => s.markdownSnippets);
   const setMarkdownSnippets = useStore((s) => s.setMarkdownSnippets);
   const tabsEnabled = useStore((s) => s.tabsEnabled);
@@ -2061,6 +2065,13 @@ export function SettingsModal(): JSX.Element {
                     { value: "gray-strikethrough", label: "Both" },
                   ]}
                   onChange={(next) => setCompletedTaskStyle(next)}
+                />
+                <ToggleRow
+                  label="Keep view mode when switching notes"
+                  description="Stay in the current Edit / Split / Preview mode when you open another note, instead of each note reopening in its own last mode. Handy if you like reading in Preview."
+                  value={keepViewModeAcrossNotes}
+                  settingId="keep-view-mode"
+                  onChange={setKeepViewModeAcrossNotes}
                 />
                 <ToggleRow
                   label="Markdown snippets"

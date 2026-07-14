@@ -762,7 +762,15 @@ export function EditorPane({ pane }: { pane: PaneLeaf }): JSX.Element {
 
   const modesByPath = useStore((s) => s.paneModes[paneId]) ?? EMPTY_PANE_MODES
   const setPaneModeForPath = useStore((s) => s.setPaneModeForPath)
-  const mode = paneModeForPath(modesByPath, activeTab)
+  const keepViewModeAcrossNotes = useStore((s) => s.keepViewModeAcrossNotes)
+  const paneStickyMode = useStore((s) => s.paneStickyModes[paneId])
+  // With "keep view mode across notes" on, every note in this pane follows the
+  // pane's current mode instead of its own remembered one (falls back to the
+  // per-note mode until a mode has been picked in this pane).
+  const mode =
+    keepViewModeAcrossNotes && paneStickyMode
+      ? paneStickyMode
+      : paneModeForPath(modesByPath, activeTab)
   const [connectionsOpen, setConnectionsOpen] = useState(false)
   const [outlineOpen, setOutlineOpen] = useState(false)
   const [activeOutlineLine, setActiveOutlineLine] = useState<number | null>(null)

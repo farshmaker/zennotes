@@ -391,6 +391,9 @@ interface Prefs {
   /** How a completed task's text is styled (strike / gray / both / none) in the
    *  editor and preview. Applied via `html[data-completed-task-style]`. */
   completedTaskStyle: CompletedTaskStyle
+  /** Keep the current view mode (Edit / Split / Preview) when switching notes
+   *  instead of resolving each note's own last mode. Off = per-note (default). */
+  keepViewModeAcrossNotes: boolean
   /** Auto-close markdown delimiters while typing: `**`+Space → `**|**`,
    *  ```` ``` ````+Enter expands a fenced block. Off restores plain typing. */
   markdownSnippets: boolean
@@ -677,6 +680,7 @@ export const DEFAULT_PREFS: Prefs = {
   livePreview: true,
   renderTablesInLivePreview: true,
   completedTaskStyle: 'none',
+  keepViewModeAcrossNotes: false,
   markdownSnippets: true,
   hideBuiltinTemplates: false,
   tabsEnabled: true,
@@ -802,6 +806,10 @@ function normalizePrefs(p: Partial<Prefs>): Prefs {
       p.completedTaskStyle === 'none'
         ? p.completedTaskStyle
         : DEFAULT_PREFS.completedTaskStyle,
+    keepViewModeAcrossNotes:
+      typeof p.keepViewModeAcrossNotes === 'boolean'
+        ? p.keepViewModeAcrossNotes
+        : DEFAULT_PREFS.keepViewModeAcrossNotes,
     markdownSnippets:
       typeof p.markdownSnippets === 'boolean'
         ? p.markdownSnippets
@@ -1564,6 +1572,7 @@ function collectPrefs(s: {
   livePreview: boolean
   renderTablesInLivePreview: boolean
   completedTaskStyle: CompletedTaskStyle
+  keepViewModeAcrossNotes: boolean
   markdownSnippets: boolean
   hideBuiltinTemplates: boolean
   tabsEnabled: boolean
@@ -1634,6 +1643,7 @@ function collectPrefs(s: {
     livePreview: s.livePreview,
     renderTablesInLivePreview: s.renderTablesInLivePreview,
     completedTaskStyle: s.completedTaskStyle,
+    keepViewModeAcrossNotes: s.keepViewModeAcrossNotes,
     markdownSnippets: s.markdownSnippets,
     hideBuiltinTemplates: s.hideBuiltinTemplates,
     tabsEnabled: s.tabsEnabled,
@@ -2082,6 +2092,7 @@ interface Store {
   livePreview: boolean
   renderTablesInLivePreview: boolean
   completedTaskStyle: CompletedTaskStyle
+  keepViewModeAcrossNotes: boolean
   /** Auto-close markdown delimiters while typing. Persisted. */
   markdownSnippets: boolean
   hideBuiltinTemplates: boolean
@@ -2236,6 +2247,10 @@ interface Store {
    *  (not persisted): kept in the store so it survives EditorPane remounts and a
    *  split can inherit the source pane's mode instead of resetting to edit. (#321) */
   paneModes: Record<string, PaneModesByPath>
+  /** Last view mode explicitly set in each pane, by pane id. Used only when
+   *  `keepViewModeAcrossNotes` is on, so every note in the pane follows the
+   *  pane's current mode instead of its own. Ephemeral, like `paneModes`. */
+  paneStickyModes: Record<string, PaneMode>
   noteListCursorIndex: number
   connectionsCursorIndex: number
   connectionPreview: ConnectionPreviewState | null
@@ -2442,6 +2457,7 @@ interface Store {
   setLivePreview: (on: boolean) => void
   setRenderTablesInLivePreview: (on: boolean) => void
   setCompletedTaskStyle: (style: CompletedTaskStyle) => void
+  setKeepViewModeAcrossNotes: (on: boolean) => void
   setMarkdownSnippets: (on: boolean) => void
   setHideBuiltinTemplates: (hidden: boolean) => void
   setTabsEnabled: (on: boolean) => void
@@ -3588,6 +3604,7 @@ export const useStore = create<Store>((set, get) => {
   livePreview: loadPrefs().livePreview,
   renderTablesInLivePreview: loadPrefs().renderTablesInLivePreview,
   completedTaskStyle: loadPrefs().completedTaskStyle,
+  keepViewModeAcrossNotes: loadPrefs().keepViewModeAcrossNotes,
   markdownSnippets: loadPrefs().markdownSnippets,
   hideBuiltinTemplates: loadPrefs().hideBuiltinTemplates,
   tabsEnabled: loadPrefs().tabsEnabled,
@@ -3658,6 +3675,7 @@ export const useStore = create<Store>((set, get) => {
   sidebarCursorIndex: 0,
   dateNavExpanded: [],
   paneModes: {},
+  paneStickyModes: {},
   noteListCursorIndex: 0,
   connectionsCursorIndex: 0,
   connectionPreview: null,
@@ -5518,6 +5536,10 @@ export const useStore = create<Store>((set, get) => {
     set({ completedTaskStyle: style })
     savePrefs(collectPrefs(get()))
   },
+  setKeepViewModeAcrossNotes: (on) => {
+    set({ keepViewModeAcrossNotes: on })
+    savePrefs(collectPrefs(get()))
+  },
   setMarkdownSnippets: (on) => {
     set({ markdownSnippets: on })
     savePrefs(collectPrefs(get()))
@@ -6773,7 +6795,10 @@ export const useStore = create<Store>((set, get) => {
       paneModes: {
         ...s.paneModes,
         [paneId]: paneModesWithPathMode(s.paneModes[paneId] ?? {}, path, mode)
-      }
+      },
+      // Remember the pane's latest mode so `keepViewModeAcrossNotes` can make
+      // every note in this pane follow it.
+      paneStickyModes: { ...s.paneStickyModes, [paneId]: mode }
     })),
 
   resizeSplit: (splitId, sizes) => {
