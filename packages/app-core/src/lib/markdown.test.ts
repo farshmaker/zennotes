@@ -155,3 +155,42 @@ describe('math with raw pipes inside tables (#319)', () => {
     expect(html).not.toContain('\\|')
   })
 })
+
+describe('currency vs inline math (reading view matches the editor)', () => {
+  it('leaves a currency line literal instead of rendering it as math', () => {
+    const html = renderMarkdown('I paid $5 and got $10 back.')
+    expect(html).not.toContain('katex')
+    expect(html).toContain('$5 and got $10 back.')
+  })
+
+  it('handles several currency amounts on one line', () => {
+    const html = renderMarkdown('Prices: $5, $10, and $20 total.')
+    expect(html).not.toContain('katex')
+    expect(html).toContain('$5,')
+    expect(html).toContain('$20 total.')
+  })
+
+  it('reverts a padded span the editor would reject ($ x $)', () => {
+    // Leading/trailing space just inside the `$` means it is not math to the
+    // editor; remark-math strips the padding and would render it, so guard it.
+    const html = renderMarkdown('Range $ 5 $ here.')
+    expect(html).not.toContain('katex')
+    expect(html).toContain('$ 5 $')
+  })
+
+  it('still renders genuine inline math', () => {
+    expect(renderMarkdown('Euler: $e^{i\\pi}+1=0$ is elegant.')).toContain('katex')
+    expect(renderMarkdown('Norm $|x|$ and sum $\\sum_{i=1}^n i$.')).toContain('katex')
+  })
+
+  it('keeps inline math sitting next to a lone currency amount', () => {
+    // `$x$` is math; the trailing `$5.` has no closing `$`, so it stays text.
+    const html = renderMarkdown('The value $x$ costs $5.')
+    expect(html).toContain('katex')
+    expect(html).toContain('$5.')
+  })
+
+  it('still renders block math', () => {
+    expect(renderMarkdown('$$\n\\int_0^1 x\\,dx\n$$')).toContain('katex')
+  })
+})
