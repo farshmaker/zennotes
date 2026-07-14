@@ -85,6 +85,7 @@ import { wysiwygBlocksPlugin } from '../lib/cm-wysiwyg-blocks'
 import { hashtagExtension } from '../lib/cm-hashtags'
 import { applyHighlight, HIGHLIGHT_COLORS, highlightExtension } from '../lib/cm-highlight'
 import { wikilinkRenderExtension } from '../lib/cm-wikilink-render'
+import { mathRenderExtension } from '../lib/cm-math-render'
 import { slashCommandSource, slashCommandRender } from '../lib/cm-slash-commands'
 import { calloutTypeSource } from '../lib/cm-callouts'
 import { dateShortcutSource } from '../lib/cm-date-shortcuts'
@@ -162,6 +163,7 @@ import {
   nextOutlinePreviewSyncLockUntil,
   outlineHeadingTextOffset,
   previewScrollTopForHeading,
+  scrollTopForElementRelativeTop,
   scrollTopForScrollRatio,
   shouldSyncPreviewFromEditorViewport
 } from '../lib/preview-outline-jump'
@@ -335,7 +337,8 @@ function wysiwygExtensions(renderTables: boolean): Extension[] {
     wysiwygBlocksPlugin,
     ...hashtagExtension,
     ...highlightExtension,
-    ...wikilinkRenderExtension
+    ...wikilinkRenderExtension,
+    mathRenderExtension
   ]
 }
 
@@ -1073,13 +1076,46 @@ export function EditorPane({ pane }: { pane: PaneLeaf }): JSX.Element {
     const previewEl = previewScrollRef.current
     if (!view || !editorEl || !previewEl) return false
 
-    const nextTop = scrollTopForScrollRatio(
-      editorEl.scrollTop,
-      editorEl.scrollHeight,
-      editorEl.clientHeight,
-      previewEl.scrollHeight,
-      previewEl.clientHeight
-    )
+    // Line-based sync: map the source line at the top of the editor viewport to
+    // the rendered preview block stamped with that line (data-source-line), so
+    // the same content sits at the top of both panes even when their heights
+    // differ. Falls back to a scroll ratio when no line data is available.
+    const ratioTop = (): number =>
+      scrollTopForScrollRatio(
+        editorEl.scrollTop,
+        editorEl.scrollHeight,
+        editorEl.clientHeight,
+        previewEl.scrollHeight,
+        previewEl.clientHeight
+      )
+
+    const blocks = previewEl.querySelectorAll<HTMLElement>('[data-source-line]')
+    let nextTop: number
+    if (blocks.length === 0) {
+      nextTop = ratioTop()
+    } else {
+      const topLine = view.state.doc.lineAt(view.lineBlockAtHeight(editorEl.scrollTop).from).number
+      let anchor: HTMLElement | null = null
+      let anchorLine = 0
+      for (const el of blocks) {
+        const ln = Number(el.dataset.sourceLine)
+        if (Number.isFinite(ln) && ln <= topLine) {
+          anchor = el
+          anchorLine = ln
+        } else if (ln > topLine) {
+          break
+        }
+      }
+      if (!anchor) {
+        nextTop = 0
+      } else {
+        // Shift the anchor by how far the editor has scrolled past its start
+        // line, so a mid-block scroll position carries over too.
+        const anchorEditorTop = view.lineBlockAt(view.state.doc.line(anchorLine).from).top
+        nextTop = scrollTopForElementRelativeTop(previewEl, anchor, anchorEditorTop - editorEl.scrollTop)
+      }
+    }
+
     if (Math.abs(previewEl.scrollTop - nextTop) < 1) return true
     ignorePreviewScrollRef.current = true
     previewEl.scrollTop = nextTop

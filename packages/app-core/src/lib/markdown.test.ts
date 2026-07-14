@@ -18,6 +18,15 @@ describe('renderMarkdown', () => {
     expect(html).not.toContain('javascript:alert(1)')
   })
 
+  it('stamps top-level blocks with data-source-line for split-view scroll sync', () => {
+    // Lines: 1 `# Heading`, 3 `First para.`, 5 `- a`, 8 `Last para.`
+    const html = renderMarkdown('# Heading\n\nFirst para.\n\n- a\n- b\n\nLast para.')
+    expect(html).toContain('data-source-line="1"')
+    expect(html).toContain('data-source-line="3"')
+    expect(html).toContain('data-source-line="5"')
+    expect(html).toContain('data-source-line="8"')
+  })
+
   it('preserves GFM table column alignment through render + sanitize', () => {
     const html = renderMarkdown(
       ['| L | C | R |', '|:--|:-:|--:|', '| 1 | 2 | 3 |'].join('\n')

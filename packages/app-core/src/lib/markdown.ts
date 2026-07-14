@@ -476,6 +476,25 @@ function rehypeTableColWidths() {
   }
 }
 
+/**
+ * Stamp each top-level block with `data-source-line` (its 1-based start line in
+ * the markdown source), so the split-view preview can be scroll-synced to the
+ * editor by mapping the editor's top line to the matching rendered element
+ * instead of by a raw scroll ratio (which drifts when the two heights differ).
+ * Applied via `data.hProperties` so `remarkRehype` carries it onto the element.
+ */
+function remarkSourceLines() {
+  return (tree: MdRoot): void => {
+    for (const node of tree.children) {
+      const line = node.position?.start?.line
+      if (line == null) continue
+      const data = (node.data ??= {})
+      const hProperties = ((data.hProperties ??= {}) as Record<string, unknown>)
+      hProperties['data-source-line'] = line
+    }
+  }
+}
+
 const processor = unified()
   .use(remarkParse)
   .use(remarkFrontmatter, ['yaml', 'toml'])
@@ -486,6 +505,7 @@ const processor = unified()
   .use(remarkHashtags)
   .use(remarkHighlight)
   .use(remarkCallouts)
+  .use(remarkSourceLines)
   .use(remarkRehype, { allowDangerousHtml: true })
   .use(rehypeRaw)
   .use(rehypeTableColWidths)

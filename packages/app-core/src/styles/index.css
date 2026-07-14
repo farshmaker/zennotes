@@ -1,6 +1,8 @@
-/* KaTeX + highlight.js are pulled in by the markdown pipeline. */
+/* KaTeX is pulled in by the markdown pipeline. highlight.js (rehype-highlight)
+   token colors are NOT imported from a fixed hljs theme — they're mapped onto
+   the editor's theme-adaptive `.tok-*` palette further down, so a fenced block
+   looks the same in the editor and the preview on every theme. (#390-adjacent) */
 @import "katex/dist/katex.min.css";
-@import "highlight.js/styles/atom-one-light.css";
 
 @tailwind base;
 @tailwind components;
@@ -2226,6 +2228,80 @@ html[data-completed-task-style="gray-strikethrough"] .cm-editor .cm-task-done {
   color: rgb(var(--z-accent-soft));
   font-style: italic;
 }
+
+/* Preview code highlighting (rehype-highlight / highlight.js) mapped onto the
+   same theme-adaptive palette the editor uses above, so a fenced block reads the
+   same in the editor and the preview (and adapts to every theme) instead of a
+   fixed light hljs theme clashing with dark ones. */
+.prose-zen code.hljs {
+  color: rgb(var(--z-fg));
+  background: transparent;
+}
+.prose-zen .hljs-keyword,
+.prose-zen .hljs-selector-tag,
+.prose-zen .hljs-literal,
+.prose-zen .hljs-doctag,
+.prose-zen .hljs-name {
+  color: rgb(var(--z-accent));
+  font-weight: 600;
+}
+.prose-zen .hljs-string,
+.prose-zen .hljs-regexp,
+.prose-zen .hljs-char,
+.prose-zen .hljs-symbol,
+.prose-zen .hljs-bullet,
+.prose-zen .hljs-addition,
+.prose-zen .hljs-meta .hljs-string {
+  color: rgb(var(--z-green));
+}
+.prose-zen .hljs-comment,
+.prose-zen .hljs-quote,
+.prose-zen .hljs-deletion {
+  color: rgb(var(--z-fg-2));
+  font-style: italic;
+  opacity: 0.85;
+}
+.prose-zen .hljs-number {
+  color: rgb(var(--z-yellow));
+}
+.prose-zen .hljs-type,
+.prose-zen .hljs-class .hljs-title,
+.prose-zen .hljs-title.class_ {
+  color: rgb(var(--z-purple));
+}
+.prose-zen .hljs-built_in,
+.prose-zen .hljs-title,
+.prose-zen .hljs-title.function_,
+.prose-zen .hljs-function .hljs-title {
+  color: rgb(var(--z-blue));
+}
+.prose-zen .hljs-attr,
+.prose-zen .hljs-attribute,
+.prose-zen .hljs-variable,
+.prose-zen .hljs-template-variable,
+.prose-zen .hljs-property,
+.prose-zen .hljs-params {
+  color: rgb(var(--z-fg));
+}
+.prose-zen .hljs-tag,
+.prose-zen .hljs-selector-id,
+.prose-zen .hljs-selector-class {
+  color: rgb(var(--z-red));
+}
+.prose-zen .hljs-operator,
+.prose-zen .hljs-punctuation {
+  color: rgb(var(--z-fg-2));
+}
+.prose-zen .hljs-meta {
+  color: rgb(var(--z-accent-soft));
+}
+.prose-zen .hljs-emphasis {
+  font-style: italic;
+}
+.prose-zen .hljs-strong {
+  font-weight: 700;
+}
+
 /*
  * Markdown list markers (`-`, `*`, `1.`, `2.`) share `tok-meta-code`
  * with code-block decorators, but inside a list line italic markers
@@ -3253,20 +3329,25 @@ html[data-completed-task-style="gray-strikethrough"] .prose-zen li.task-list-ite
   margin: 0.85rem;
 }
 
-/* Wiki links */
+/* Wiki links — Obsidian-style internal links: accent text with a soft underline,
+   matching the editor's live-preview wikilink so they read as links rather than
+   filled inline-code chips. (Julie: the old boxed style looked like inline code.) */
 .prose-zen a.wikilink {
-  background: theme("colors.paper.200");
-  padding: 1px 6px;
-  border-radius: 4px;
-  border-bottom: none;
+  color: rgb(var(--z-accent));
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--z-accent) / 0.4);
+  text-underline-offset: 2px;
   font-weight: 500;
 }
+/* Unresolved target: muted, with a dashed underline (not a boxed border) as a
+   quiet "this note doesn't exist yet" hint. */
 .prose-zen a.wikilink.broken {
   color: theme("colors.ink.500");
-  border: 1px dashed theme("colors.paper.400");
+  text-decoration-style: dashed;
+  text-decoration-color: theme("colors.ink.400");
 }
 .prose-zen a.wikilink:hover {
-  background: theme("colors.paper.300");
+  text-decoration-color: rgb(var(--z-accent));
 }
 
 .prose-hover-preview {
@@ -4625,6 +4706,23 @@ html[data-completed-task-style="gray-strikethrough"] .prose-zen li.task-list-ite
   font-style: normal !important;
   text-decoration: none !important;
   opacity: 0.7;
+}
+
+/* Live-preview math — KaTeX rendered inline in the editor, matching the Preview
+   pipeline. The raw `$…$` / `$$…$$` source is revealed when the cursor enters it
+   (see cm-math-render.ts). */
+.cm-wysiwyg .cm-editor .cm-math-inline {
+  cursor: text;
+}
+.cm-wysiwyg .cm-editor .cm-math-block {
+  display: block;
+  text-align: center;
+  margin: 0.3em 0;
+  cursor: text;
+}
+.cm-wysiwyg .cm-editor .cm-math-error {
+  font-family: var(--z-font-mono, ui-monospace, monospace);
+  opacity: 0.75;
 }
 
 /* Inline hashtags rendered as clickable pills — Obsidian's `.tag` style:
