@@ -1574,6 +1574,20 @@ textarea,
 .cm-editor .cm-fat-cursor ~ .cm-cursor {
   display: none;
 }
+/*
+ * During a Vim *pending* state (operator-pending, `f`/`t` waiting for a char,
+ * the `:` / `/` command line) @replit/codemirror-vim draws a half-height block
+ * and sets the glyph's inline `color: transparent` so the shrunk block reads
+ * clean. Our block-color override above (`color: … !important`) was forcing that
+ * glyph back to visible, squished into the half box — the "shrunken character"
+ * artifact. Re-hide the glyph so the pending cursor is a clean half-block; the
+ * transparent inline color is the only marker the package leaves on it. The
+ * block is still width-sized by the (now invisible) letter. (#390)
+ */
+.cm-editor .cm-fat-cursor[style*='transparent'],
+.cm-editor.cm-focused .cm-fat-cursor[style*='transparent'] {
+  color: transparent !important;
+}
 
 /* --- Vim ex command panel (`:` / `/` / `?` input at the bottom) ----- */
 /*
