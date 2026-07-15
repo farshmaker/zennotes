@@ -4717,8 +4717,16 @@ html[data-completed-task-style="gray-strikethrough"] .prose-zen li.task-list-ite
 .cm-wysiwyg .cm-editor .cm-math-block {
   display: block;
   text-align: center;
-  margin: 0.3em 0;
+  /* Padding, never margin: CodeMirror measures block widgets with
+     getBoundingClientRect, which excludes margins, so any vertical margin here
+     (or KaTeX's own .katex-display margin collapsing through) makes the height
+     map drift and mouse clicks land further off the deeper you scroll. */
+  margin: 0;
+  padding: 0.5em 0;
   cursor: text;
+}
+.cm-wysiwyg .cm-editor .cm-math-block .katex-display {
+  margin: 0;
 }
 .cm-wysiwyg .cm-editor .cm-math-error {
   font-family: var(--z-font-mono, ui-monospace, monospace);
